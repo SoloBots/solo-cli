@@ -1,0 +1,36 @@
+name: CI (Pull Requests & Main)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality-gate:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+
+    - name: Rust Cache
+      uses: swatinem/rust-cache@v2
+
+    - name: Check Formatting
+      run: cargo fmt --check
+
+    - name: Run Clippy (Linter)
+      run: cargo clippy -- -D warnings
+
+    - name: Run Tests
+      run: cargo test --verbose
+
+    - name: Quick Build Verification
+      run: cargo check
