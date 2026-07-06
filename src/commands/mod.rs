@@ -37,15 +37,27 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
     match cmd {
         Commands::Init => {
             println!("✨ Solo System Initialization");
-            if let Err(e) = git::clone_and_run("https://github.com/BerlinUnited/xabsleditor.git", "/home/stella/solo_test") {
-                eprintln!("❌ Error during setup: {}", e);
+            
+            let mut picker = views::folder_picker::FolderPicker::new();
+
+            match picker.run() {
+                Ok(Some(chosen_path)) => {
+                    println!("📍 Targets will be built inside: {}", chosen_path.display());
+                    if let Err(e) = git::clone_and_run("https://github.com/BerlinUnited/xabsleditor.git", &chosen_path) {
+                        eprintln!("❌ Error during setup: {}", e);
+                    }
+                    if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/naoth-2020.git", &chosen_path) {
+                        eprintln!("❌ Error during setup: {}", e);
+                    }
+                    if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/tools/naoth-deeplearning.git", &chosen_path) {
+                        eprintln!("❌ Error during setup: {}", e);
+                    }
+                }
+                Ok(None) => println!("Scaffold cancelled."),
+                Err(e) => eprintln!("System Picker Error: {}", e),
             }
-            if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/naoth-2020.git", "/home/stella/solo_test") {
-                eprintln!("❌ Error during setup: {}", e);
-            }
-            if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/tools/naoth-deeplearning.git", "/home/stella/solo_test") {
-                eprintln!("❌ Error during setup: {}", e);
-            }
+
+            
         }
         Commands::Status => {
             println!("✨ System status: Fully operational.");

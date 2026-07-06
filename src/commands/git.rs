@@ -3,7 +3,7 @@ use std::path::Path;
 use std::io;
 
 /// Clones a repository and runs a list of setup commands inside its directory.
-pub fn clone_and_run(repo_url: &str, folder_name: &str) -> io::Result<()> {
+pub fn clone_and_run(repo_url: &str, folder_name: &Path) -> io::Result<()> {
     println!("📥 Cloning repository: {}...", repo_url);
 
     // 1. Run the `git clone` command
