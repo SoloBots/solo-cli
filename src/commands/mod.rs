@@ -1,4 +1,5 @@
 pub mod core;
+pub mod git;
 
 use crate::SessionContext;
 use crate::views;
@@ -13,7 +14,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
-    init,   // init the whole system
+    Init,   // init the whole system
     Status, // Check the status of your solo session
     Do {
         item: String,
@@ -34,8 +35,17 @@ pub enum Commands {
 /// Where your routing logic lives
 pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
     match cmd {
-        Commands::init => {
-            println!("✨ System Initialization");
+        Commands::Init => {
+            println!("✨ Solo System Initialization");
+            if let Err(e) = git::clone_and_run("https://github.com/BerlinUnited/xabsleditor.git", "/home/stella/solo_test") {
+                eprintln!("❌ Error during setup: {}", e);
+            }
+            if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/naoth-2020.git", "/home/stella/solo_test") {
+                eprintln!("❌ Error during setup: {}", e);
+            }
+            if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/tools/naoth-deeplearning.git", "/home/stella/solo_test") {
+                eprintln!("❌ Error during setup: {}", e);
+            }
         }
         Commands::Status => {
             println!("✨ System status: Fully operational.");
