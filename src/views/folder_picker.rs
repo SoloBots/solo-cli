@@ -90,7 +90,7 @@ impl FolderPicker {
                         Constraint::Min(1),
                         Constraint::Length(3),
                     ])
-                    .split(f.size());
+                    .split(f.area());
 
                 // Top Panel: Instructions
                 let header =

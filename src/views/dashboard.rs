@@ -15,7 +15,7 @@ pub fn run() -> io::Result<()> {
 
     loop {
         terminal.draw(|f| {
-            let size = f.size();
+            let size = f.area();
             let block = Block::default()
                 .title(" Solo Interactive Dashboard ")
                 .borders(Borders::ALL)
