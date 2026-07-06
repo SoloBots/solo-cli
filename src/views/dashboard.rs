@@ -1,7 +1,10 @@
-use std::io;
+use crossterm::{
+    execute,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+};
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, Borders, Paragraph};
-use crossterm::{execute, terminal::{enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}};
+use std::io;
 
 pub fn run() -> io::Result<()> {
     enable_raw_mode()?;
@@ -17,11 +20,13 @@ pub fn run() -> io::Result<()> {
                 .title(" Solo Interactive Dashboard ")
                 .borders(Borders::ALL)
                 .border_style(Style::default().fg(Color::Cyan));
-            
-            let text = Paragraph::new("Welcome to your Ratatui View!\n\nPress 'q' to return to the solo prompt.")
-                .alignment(Alignment::Center)
-                .block(block);
-                
+
+            let text = Paragraph::new(
+                "Welcome to your Ratatui View!\n\nPress 'q' to return to the solo prompt.",
+            )
+            .alignment(Alignment::Center)
+            .block(block);
+
             f.render_widget(text, size);
         })?;
 

@@ -2,8 +2,8 @@ mod commands;
 mod views;
 
 use clap::Parser;
-use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
+use rustyline::error::ReadlineError;
 
 use commands::{Cli, execute_command};
 
@@ -32,7 +32,7 @@ fn main() {
 fn run_interactive_session() -> Result<(), ReadlineError> {
     let mut rl = DefaultEditor::new()?;
     let mut context = SessionContext::Main;
-    
+
     loop {
         // Dynamic prompt update based on state
         let prompt = match context {
@@ -41,15 +41,17 @@ fn run_interactive_session() -> Result<(), ReadlineError> {
         };
 
         let readline = rl.readline(prompt);
-        
+
         match readline {
             Ok(line) => {
                 let input = line.trim();
-                if input.is_empty() { continue; }
+                if input.is_empty() {
+                    continue;
+                }
 
                 let _ = rl.add_history_entry(input);
                 let mut args = vec!["solo"];
-                
+
                 match context {
                     SessionContext::Main => {
                         args.extend(input.split_whitespace());
@@ -59,12 +61,14 @@ fn run_interactive_session() -> Result<(), ReadlineError> {
                         args.extend(input.split_whitespace());
                     }
                 }
-                
+
                 match Cli::try_parse_from(args) {
                     Ok(parsed_cli) => {
                         if let Some(cmd) = parsed_cli.command {
                             let should_continue = execute_command(cmd, &mut context);
-                            if !should_continue { break; }
+                            if !should_continue {
+                                break;
+                            }
                         }
                     }
                     Err(e) => e.print().unwrap(),

@@ -1,8 +1,8 @@
 pub mod core;
 
-use clap::{Parser, Subcommand};
 use crate::SessionContext;
 use crate::views;
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "solo", version = "1.0", about = "An interactive CLI tool")]
@@ -13,20 +13,22 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
-    init,                   // init the whole system
-    Status,                 // Check the status of your solo session
-    Do { item: String },    // Do an awesome action
+    init,   // init the whole system
+    Status, // Check the status of your solo session
+    Do {
+        item: String,
+    }, // Do an awesome action
     Dashboard,
     Core {
         #[command(subcommand)]
-        subcommand: Option<core::CoreCommands>, 
+        subcommand: Option<core::CoreCommands>,
     },
     Scaffold {
         /// Optional space-separated list of folders to build (e.g. src tests docs)
         #[arg(num_args = 1..)]
         folders: Vec<String>,
     },
-    Exit,                   // Exit the interactive session
+    Exit, // Exit the interactive session
 }
 
 /// Where your routing logic lives
@@ -60,11 +62,13 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
 
             println!("Launching Interactive Folder Picker...");
             let mut picker = views::folder_picker::FolderPicker::new();
-            
+
             match picker.run() {
                 Ok(Some(chosen_path)) => {
                     println!("📍 Targets will be built inside: {}", chosen_path.display());
-                    if let Err(e) = views::folder_picker::create_subfolders(&chosen_path, &folders_to_create) {
+                    if let Err(e) =
+                        views::folder_picker::create_subfolders(&chosen_path, &folders_to_create)
+                    {
                         eprintln!("❌ Failed creating directories: {}", e);
                     } else {
                         println!("✅ Project workspace scaffolded beautifully!");

@@ -1,9 +1,12 @@
+use crossterm::{
+    execute,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+};
+use ratatui::prelude::*;
+use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use ratatui::prelude::*;
-use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
-use crossterm::{execute, terminal::{enable_raw_mode, disable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen}};
 
 pub struct FolderPicker {
     current_dir: PathBuf,
@@ -26,7 +29,7 @@ impl FolderPicker {
     /// Reads directories under the current target path
     fn refresh_items(&mut self) {
         let mut new_items = Vec::new();
-        
+
         // Always add a helper shortcut to go up a directory level
         if let Some(parent) = self.current_dir.parent() {
             new_items.push(parent.to_path_buf());
@@ -50,23 +53,23 @@ impl FolderPicker {
     }
 
     pub fn next(&mut self) {
-    if let Some(current) = self.state.selected() {
-        if !self.items.is_empty() {
-            // Simply modulo by the length of the items array
-            self.state.select(Some((current + 1) % self.items.len()));
+        if let Some(current) = self.state.selected() {
+            if !self.items.is_empty() {
+                // Simply modulo by the length of the items array
+                self.state.select(Some((current + 1) % self.items.len()));
+            }
         }
     }
-}
 
-pub fn previous(&mut self) {
-    if let Some(current) = self.state.selected() {
-        if !self.items.is_empty() {
-            let len = self.items.len();
-            // Prevents underflow if wrapping backward
-            self.state.select(Some((current + len - 1) % len));
+    pub fn previous(&mut self) {
+        if let Some(current) = self.state.selected() {
+            if !self.items.is_empty() {
+                let len = self.items.len();
+                // Prevents underflow if wrapping backward
+                self.state.select(Some((current + len - 1) % len));
+            }
         }
     }
-}
 
     /// Runs the interactive loop. Returns Option<PathBuf> if a selection was locked in.
     pub fn run(&mut self) -> io::Result<Option<PathBuf>> {
@@ -82,39 +85,64 @@ pub fn previous(&mut self) {
             terminal.draw(|f| {
                 let chunks = Layout::default()
                     .direction(Direction::Vertical)
-                    .constraints([Constraint::Length(3), Constraint::Min(1), Constraint::Length(3)])
+                    .constraints([
+                        Constraint::Length(3),
+                        Constraint::Min(1),
+                        Constraint::Length(3),
+                    ])
                     .split(f.size());
 
                 // Top Panel: Instructions
-                let header = Paragraph::new(format!("📂 Current Path: {}", self.current_dir.display()))
-                    .block(Block::default().borders(Borders::ALL).title(" Target Location "));
+                let header =
+                    Paragraph::new(format!("📂 Current Path: {}", self.current_dir.display()))
+                        .block(
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .title(" Target Location "),
+                        );
                 f.render_widget(header, chunks[0]);
 
                 // Middle Panel: Folder List
-                let list_items: Vec<ListItem> = self.items.iter().map(|path| {
-                    let name = path.file_name()
-                        .map(|n| n.to_string_lossy().into_owned())
-                        .unwrap_or_else(|| ".. (Go Up)".to_string());
-                    
-                    // Style parent folder shortcut differently
-                    if path == &self.current_dir.parent().unwrap_or_else(|| Path::new("")) {
-                        ListItem::new(format!(" ⬆️  .. (Go Up)"))
-                    } else {
-                        ListItem::new(format!(" 📁 {}", name))
-                    }
-                }).collect();
+                let list_items: Vec<ListItem> = self
+                    .items
+                    .iter()
+                    .map(|path| {
+                        let name = path
+                            .file_name()
+                            .map(|n| n.to_string_lossy().into_owned())
+                            .unwrap_or_else(|| ".. (Go Up)".to_string());
+
+                        // Style parent folder shortcut differently
+                        if path == &self.current_dir.parent().unwrap_or_else(|| Path::new("")) {
+                            ListItem::new(format!(" ⬆️  .. (Go Up)"))
+                        } else {
+                            ListItem::new(format!(" 📁 {}", name))
+                        }
+                    })
+                    .collect();
 
                 let list = List::new(list_items)
-                    .block(Block::default().borders(Borders::ALL).title(" Subdirectories "))
-                    .highlight_style(Style::default().bg(Color::Blue).fg(Color::White).add_modifier(Modifier::BOLD))
+                    .block(
+                        Block::default()
+                            .borders(Borders::ALL)
+                            .title(" Subdirectories "),
+                    )
+                    .highlight_style(
+                        Style::default()
+                            .bg(Color::Blue)
+                            .fg(Color::White)
+                            .add_modifier(Modifier::BOLD),
+                    )
                     .highlight_symbol(">> ");
-                
+
                 f.render_stateful_widget(list, chunks[1], &mut self.state);
 
                 // Bottom Panel: Footer Controls
-                let footer = Paragraph::new("▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel")
-                    .alignment(Alignment::Center)
-                    .block(Block::default().borders(Borders::ALL));
+                let footer = Paragraph::new(
+                    "▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel",
+                )
+                .alignment(Alignment::Center)
+                .block(Block::default().borders(Borders::ALL));
                 f.render_widget(footer, chunks[2]);
             })?;
 

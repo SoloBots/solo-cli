@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*' # Triggers on v1.0.0, v2.1.3-beta, etc.
 
+permissions:
+  contents: write
+
 jobs:
   release:
     name: Release - ${{ matrix.job.target }}
@@ -15,16 +18,16 @@ jobs:
         job:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            asset_name: myapp-linux-amd64
+            asset_name: solo-linux-amd64
           - os: macos-latest
             target: x86_64-apple-darwin
-            asset_name: myapp-macos-intel
+            asset_name: solo-macos-intel
           - os: macos-latest
             target: aarch64-apple-darwin
-            asset_name: myapp-macos-arm64
+            asset_name: solo-macos-arm64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            asset_name: myapp-windows-amd64.exe
+            asset_name: solo-windows-amd64.exe
 
     steps:
     - name: Checkout source code
@@ -47,14 +50,13 @@ jobs:
       if: matrix.job.os != 'windows-latest'
       run: |
         cd target/${{ matrix.job.target }}/release
-        # Rename the binary to your desired asset name for clarity
-        mv your_binary_name ../../../${{ matrix.job.asset_name }}
+        mv solo ../../../${{ matrix.job.asset_name }}
 
     - name: Prepare Binary Asset (Windows)
       if: matrix.job.os == 'windows-latest'
       run: |
         cd target/${{ matrix.job.target }}/release
-        Move-Item -Path your_binary_name.exe -Destination ../../../${{ matrix.job.asset_name }}
+        Move-Item -Path solo.exe -Destination ../../../${{ matrix.job.asset_name }}
 
     - name: Upload Binaries to Release
       uses: softprops/action-gh-release@v2
