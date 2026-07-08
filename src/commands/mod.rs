@@ -37,7 +37,7 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
     match cmd {
         Commands::Init => {
             println!("✨ Solo System Initialization");
-            
+
             let mut picker = views::folder_picker::FolderPicker::new();
 
             match picker.run() {
@@ -52,12 +52,15 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
                     if let Err(e) = git::clone_and_run("git@scm.cms.hu-berlin.de:berlinunited/tools/naoth-deeplearning.git", &chosen_path) {
                         eprintln!("❌ Error during setup: {}", e);
                     }
+                    if let Err(e) = git::clone_and_run("https://github.com/RoboCup-HumanoidSoccerLeague/GameController.git", &chosen_path) {
+                        eprintln!("❌ Error during setup: {}", e);
+                    }
                 }
                 Ok(None) => println!("Scaffold cancelled."),
                 Err(e) => eprintln!("System Picker Error: {}", e),
             }
 
-            
+
         }
         Commands::Status => {
             println!("✨ System status: Fully operational.");
