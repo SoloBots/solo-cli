@@ -1,12 +1,12 @@
 use crossterm::{
     execute,
-    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+    terminal::{ EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode },
 };
 use ratatui::prelude::*;
-use ratatui::widgets::{Block, Borders, List, ListItem, ListState, Paragraph};
+use ratatui::widgets::{ Block, Borders, List, ListItem, ListState, Paragraph, BorderType };
 use std::fs;
 use std::io;
-use std::path::{Path, PathBuf};
+use std::path::{ Path, PathBuf };
 
 pub struct FolderPicker {
     current_dir: PathBuf,
@@ -87,24 +87,31 @@ impl FolderPicker {
                     .direction(Direction::Vertical)
                     .constraints([
                         Constraint::Length(3),
+                        Constraint::Length(3),
                         Constraint::Min(1),
                         Constraint::Length(3),
                     ])
                     .split(f.area());
 
                 // Top Panel: Instructions
-                let header =
-                    Paragraph::new(format!("📂 Current Path: {}", self.current_dir.display()))
-                        .block(
-                            Block::default()
-                                .borders(Borders::ALL)
-                                .title(" Target Location "),
-                        );
-                f.render_widget(header, chunks[0]);
+                let header1 = Paragraph::new(
+                    "Choose Folder in which to clone all the repos for the project"
+                ).block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Thick)
+                        .border_style(Style::default().fg(Color::Magenta))
+                        .title(Line::from(" Instructions ").bold().fg(Color::Cyan))
+                );
+                f.render_widget(header1, chunks[0]);
+                // Top Panel: Instructions
+                let header2 = Paragraph::new(
+                    format!("📂 Current Path: {}", self.current_dir.display())
+                ).block(Block::default().borders(Borders::ALL).title(" Target Location "));
+                f.render_widget(header2, chunks[1]);
 
                 // Middle Panel: Folder List
-                let list_items: Vec<ListItem> = self
-                    .items
+                let list_items: Vec<ListItem> = self.items
                     .iter()
                     .map(|path| {
                         let name = path
@@ -122,34 +129,32 @@ impl FolderPicker {
                     .collect();
 
                 let list = List::new(list_items)
-                    .block(
-                        Block::default()
-                            .borders(Borders::ALL)
-                            .title(" Subdirectories "),
-                    )
+                    .block(Block::default().borders(Borders::ALL).title(" Subdirectories "))
                     .highlight_style(
                         Style::default()
                             .bg(Color::Blue)
                             .fg(Color::White)
-                            .add_modifier(Modifier::BOLD),
+                            .add_modifier(Modifier::BOLD)
                     )
                     .highlight_symbol(">> ");
 
-                f.render_stateful_widget(list, chunks[1], &mut self.state);
+                f.render_stateful_widget(list, chunks[2], &mut self.state);
 
                 // Bottom Panel: Footer Controls
                 let footer = Paragraph::new(
-                    "▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel",
+                    "▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel"
                 )
-                .alignment(Alignment::Center)
-                .block(Block::default().borders(Borders::ALL));
-                f.render_widget(footer, chunks[2]);
+                    .alignment(Alignment::Center)
+                    .block(Block::default().borders(Borders::ALL));
+                f.render_widget(footer, chunks[3]);
             })?;
 
             if crossterm::event::poll(std::time::Duration::from_millis(16))? {
                 if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
                     match key.code {
-                        crossterm::event::KeyCode::Char('q') => break,
+                        crossterm::event::KeyCode::Char('q') => {
+                            break;
+                        }
                         crossterm::event::KeyCode::Down => self.next(),
                         crossterm::event::KeyCode::Up => self.previous(),
                         crossterm::event::KeyCode::Enter => {
@@ -175,14 +180,4 @@ impl FolderPicker {
         terminal.show_cursor()?;
         Ok(selected_path)
     }
-}
-
-/// Utility execution function that physically creates the directories
-pub fn create_subfolders(base_path: &Path, subfolders: &[String]) -> io::Result<()> {
-    for sub in subfolders {
-        let full_path = base_path.join(sub);
-        println!("🏗️ Creating: {}", full_path.display());
-        fs::create_dir_all(&full_path)?; // create_dir_all handles multiple structural levels safely
-    }
-    Ok(())
 }
