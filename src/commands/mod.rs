@@ -3,7 +3,7 @@ pub mod git;
 
 use crate::SessionContext;
 use crate::views;
-use clap::{ Parser, Subcommand };
+use clap::{Parser, Subcommand};
 use dialoguer::Confirm;
 
 #[derive(Parser)]
@@ -15,7 +15,7 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
-    Init, // init the whole system
+    Init,   // init the whole system
     Status, // Check the status of your solo session
     Do {
         item: String,
@@ -29,7 +29,11 @@ pub enum Commands {
 }
 
 pub fn ask_confirm(prompt: &str, default_value: bool) -> bool {
-    Confirm::new().with_prompt(prompt).default(default_value).interact().unwrap_or(false) // Fallback if user cancels (e.g., Ctrl+C)
+    Confirm::new()
+        .with_prompt(prompt)
+        .default(default_value)
+        .interact()
+        .unwrap_or(false) // Fallback if user cancels (e.g., Ctrl+C)
 }
 
 /// Where your routing logic lives
@@ -65,52 +69,39 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
                 match picker.run() {
                     Ok(Some(chosen_path)) => {
                         println!("🔄 Repos will be cloned inside: {}", chosen_path.display());
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "git@github.com:SoloBots/solo-cli.git",
-                                &chosen_path
-                            )
+                        if let Err(e) =
+                            git::clone_and_run("git@github.com:SoloBots/solo-cli.git", &chosen_path)
                         {
                             eprintln!("❌ Error during setup: {}", e);
                         }
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "git@github.com:SoloBots/solo-docs.git",
-                                &chosen_path
-                            )
-                        {
+                        if let Err(e) = git::clone_and_run(
+                            "git@github.com:SoloBots/solo-docs.git",
+                            &chosen_path,
+                        ) {
                             eprintln!("❌ Error during setup: {}", e);
                         }
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "git@github.com:SoloBots/solo-core-ros.git",
-                                &chosen_path
-                            )
-                        {
+                        if let Err(e) = git::clone_and_run(
+                            "git@github.com:SoloBots/solo-core-ros.git",
+                            &chosen_path,
+                        ) {
                             eprintln!("❌ Error during setup: {}", e);
                         }
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "git@github.com:SoloBots/solo-core.git",
-                                &chosen_path
-                            )
-                        {
+                        if let Err(e) = git::clone_and_run(
+                            "git@github.com:SoloBots/solo-core.git",
+                            &chosen_path,
+                        ) {
                             eprintln!("❌ Error during setup: {}", e);
                         }
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "git@github.com:SoloBots/Network-Manager.git",
-                                &chosen_path
-                            )
-                        {
+                        if let Err(e) = git::clone_and_run(
+                            "git@github.com:SoloBots/Network-Manager.git",
+                            &chosen_path,
+                        ) {
                             eprintln!("❌ Error during setup: {}", e);
                         }
-                        if
-                            let Err(e) = git::clone_and_run(
-                                "https://github.com/RoboCup-HumanoidSoccerLeague/GameController.git",
-                                &chosen_path
-                            )
-                        {
+                        if let Err(e) = git::clone_and_run(
+                            "https://github.com/RoboCup-HumanoidSoccerLeague/GameController.git",
+                            &chosen_path,
+                        ) {
                             eprintln!("❌ Error during setup: {}", e);
                         }
                     }

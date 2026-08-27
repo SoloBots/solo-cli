@@ -1,12 +1,12 @@
 use crossterm::{
     execute,
-    terminal::{ EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode },
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::prelude::*;
-use ratatui::widgets::{ Block, Borders, List, ListItem, ListState, Paragraph, BorderType };
+use ratatui::widgets::{Block, BorderType, Borders, List, ListItem, ListState, Paragraph};
 use std::fs;
 use std::io;
-use std::path::{ Path, PathBuf };
+use std::path::{Path, PathBuf};
 
 pub struct FolderPicker {
     current_dir: PathBuf,
@@ -94,24 +94,29 @@ impl FolderPicker {
                     .split(f.area());
 
                 // Top Panel: Instructions
-                let header1 = Paragraph::new(
-                    "Choose Folder in which to clone all the repos for the project"
-                ).block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .border_type(BorderType::Thick)
-                        .border_style(Style::default().fg(Color::Magenta))
-                        .title(Line::from(" Instructions ").bold().fg(Color::Cyan))
-                );
+                let header1 =
+                    Paragraph::new("Choose Folder in which to clone all the repos for the project")
+                        .block(
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .border_type(BorderType::Thick)
+                                .border_style(Style::default().fg(Color::Magenta))
+                                .title(Line::from(" Instructions ").bold().fg(Color::Cyan)),
+                        );
                 f.render_widget(header1, chunks[0]);
                 // Top Panel: Instructions
-                let header2 = Paragraph::new(
-                    format!("📂 Current Path: {}", self.current_dir.display())
-                ).block(Block::default().borders(Borders::ALL).title(" Target Location "));
+                let header2 =
+                    Paragraph::new(format!("📂 Current Path: {}", self.current_dir.display()))
+                        .block(
+                            Block::default()
+                                .borders(Borders::ALL)
+                                .title(" Target Location "),
+                        );
                 f.render_widget(header2, chunks[1]);
 
                 // Middle Panel: Folder List
-                let list_items: Vec<ListItem> = self.items
+                let list_items: Vec<ListItem> = self
+                    .items
                     .iter()
                     .map(|path| {
                         let name = path
@@ -129,12 +134,16 @@ impl FolderPicker {
                     .collect();
 
                 let list = List::new(list_items)
-                    .block(Block::default().borders(Borders::ALL).title(" Subdirectories "))
+                    .block(
+                        Block::default()
+                            .borders(Borders::ALL)
+                            .title(" Subdirectories "),
+                    )
                     .highlight_style(
                         Style::default()
                             .bg(Color::Blue)
                             .fg(Color::White)
-                            .add_modifier(Modifier::BOLD)
+                            .add_modifier(Modifier::BOLD),
                     )
                     .highlight_symbol(">> ");
 
@@ -142,10 +151,10 @@ impl FolderPicker {
 
                 // Bottom Panel: Footer Controls
                 let footer = Paragraph::new(
-                    "▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel"
+                    "▲/▼: Navigate | Enter: Enter Folder | Space: Choose this folder | q: Cancel",
                 )
-                    .alignment(Alignment::Center)
-                    .block(Block::default().borders(Borders::ALL));
+                .alignment(Alignment::Center)
+                .block(Block::default().borders(Borders::ALL));
                 f.render_widget(footer, chunks[3]);
             })?;
 
