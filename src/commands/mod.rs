@@ -51,6 +51,11 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
                 } else {
                     println!("❌ 'git' could not be found.");
                 }
+                if let Some(path) = views::path_functions::check_binary_exists("npm") {
+                    println!("✅ 'npm' is available at: {}", path.display());
+                } else {
+                    println!("❌ 'npm' could not be found.");
+                }
             } else {
                 println!("⏭️ Skipping dependency check.");
             }
