@@ -170,17 +170,17 @@ pub fn receive() -> std::io::Result<()> {
 
         if let Some(gc_data) = RoboCupGameControlData::parse(&buf[..bytes_len])
             && &gc_data.header == GAMECONTROLLER_STRUCT_HEADER
-                && gc_data.version == GAMECONTROLLER_STRUCT_VERSION
-            {
-                println!(
-                    "[{src}] Secs Left: {}s | Score: {} - {} | State: {} | {} vs {}",
-                    gc_data.secs_remaining,
-                    gc_data.teams[0].score,
-                    gc_data.teams[1].score,
-                    gc_data.state,
-                    gc_data.teams[0].team_number,
-                    gc_data.teams[1].team_number
-                );
-            }
+            && gc_data.version == GAMECONTROLLER_STRUCT_VERSION
+        {
+            println!(
+                "[{src}] Secs Left: {}s | Score: {} - {} | State: {} | {} vs {}",
+                gc_data.secs_remaining,
+                gc_data.teams[0].score,
+                gc_data.teams[1].score,
+                gc_data.state,
+                gc_data.teams[0].team_number,
+                gc_data.teams[1].team_number
+            );
+        }
     }
 }
