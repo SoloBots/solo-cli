@@ -37,10 +37,10 @@ impl FolderPicker {
 
         if let Ok(entries) = fs::read_dir(&self.current_dir) {
             for entry in entries.flatten() {
-                if let Ok(file_type) = entry.file_type() {
-                    if file_type.is_dir() {
-                        new_items.push(entry.path());
-                    }
+                if let Ok(file_type) = entry.file_type()
+                    && file_type.is_dir()
+                {
+                    new_items.push(entry.path());
                 }
             }
         }
@@ -53,21 +53,21 @@ impl FolderPicker {
     }
 
     pub fn next(&mut self) {
-        if let Some(current) = self.state.selected() {
-            if !self.items.is_empty() {
-                // Simply modulo by the length of the items array
-                self.state.select(Some((current + 1) % self.items.len()));
-            }
+        if let Some(current) = self.state.selected()
+            && !self.items.is_empty()
+        {
+            // Simply modulo by the length of the items array
+            self.state.select(Some((current + 1) % self.items.len()));
         }
     }
 
     pub fn previous(&mut self) {
-        if let Some(current) = self.state.selected() {
-            if !self.items.is_empty() {
-                let len = self.items.len();
-                // Prevents underflow if wrapping backward
-                self.state.select(Some((current + len - 1) % len));
-            }
+        if let Some(current) = self.state.selected()
+            && !self.items.is_empty()
+        {
+            let len = self.items.len();
+            // Prevents underflow if wrapping backward
+            self.state.select(Some((current + len - 1) % len));
         }
     }
 
@@ -125,8 +125,8 @@ impl FolderPicker {
                             .unwrap_or_else(|| ".. (Go Up)".to_string());
 
                         // Style parent folder shortcut differently
-                        if path == &self.current_dir.parent().unwrap_or_else(|| Path::new("")) {
-                            ListItem::new(format!(" ⬆️  .. (Go Up)"))
+                        if path == self.current_dir.parent().unwrap_or_else(|| Path::new("")) {
+                            ListItem::new(" ⬆️  .. (Go Up)".to_string())
                         } else {
                             ListItem::new(format!(" 📁 {}", name))
                         }
@@ -158,28 +158,28 @@ impl FolderPicker {
                 f.render_widget(footer, chunks[3]);
             })?;
 
-            if crossterm::event::poll(std::time::Duration::from_millis(16))? {
-                if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
-                    match key.code {
-                        crossterm::event::KeyCode::Char('q') => {
-                            break;
-                        }
-                        crossterm::event::KeyCode::Down => self.next(),
-                        crossterm::event::KeyCode::Up => self.previous(),
-                        crossterm::event::KeyCode::Enter => {
-                            if let Some(idx) = self.state.selected() {
-                                let target = self.items[idx].clone();
-                                self.current_dir = target;
-                                self.refresh_items();
-                            }
-                        }
-                        crossterm::event::KeyCode::Char(' ') => {
-                            // Selected! Lock in this path.
-                            selected_path = Some(self.current_dir.clone());
-                            break;
-                        }
-                        _ => {}
+            if crossterm::event::poll(std::time::Duration::from_millis(16))?
+                && let crossterm::event::Event::Key(key) = crossterm::event::read()?
+            {
+                match key.code {
+                    crossterm::event::KeyCode::Char('q') => {
+                        break;
                     }
+                    crossterm::event::KeyCode::Down => self.next(),
+                    crossterm::event::KeyCode::Up => self.previous(),
+                    crossterm::event::KeyCode::Enter => {
+                        if let Some(idx) = self.state.selected() {
+                            let target = self.items[idx].clone();
+                            self.current_dir = target;
+                            self.refresh_items();
+                        }
+                    }
+                    crossterm::event::KeyCode::Char(' ') => {
+                        // Selected! Lock in this path.
+                        selected_path = Some(self.current_dir.clone());
+                        break;
+                    }
+                    _ => {}
                 }
             }
         }

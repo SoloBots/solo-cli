@@ -30,12 +30,11 @@ pub fn run() -> io::Result<()> {
             f.render_widget(text, size);
         })?;
 
-        if crossterm::event::poll(std::time::Duration::from_millis(16))? {
-            if let crossterm::event::Event::Key(key) = crossterm::event::read()? {
-                if key.code == crossterm::event::KeyCode::Char('q') {
-                    break;
-                }
-            }
+        if crossterm::event::poll(std::time::Duration::from_millis(16))?
+            && let crossterm::event::Event::Key(key) = crossterm::event::read()?
+            && key.code == crossterm::event::KeyCode::Char('q')
+        {
+            break;
         }
     }
 
