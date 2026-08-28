@@ -1,19 +1,21 @@
-use std::process::Command;
-use std::path::Path;
 use std::io;
-
+use std::path::Path;
+use std::process::Command;
 
 /// Clones a repository and runs a list of setup commands inside its directory.
 pub fn clone_and_run(repo_url: &str, folder_name: &Path) -> io::Result<()> {
     // 1. Extract the repo name from the URL (e.g., "https://github.com/user/repo.git" -> "repo")
     let repo_name = repo_url
         .split('/')
-        .last()
+        .next_back()
         .unwrap_or("")
         .trim_end_matches(".git");
 
     if repo_name.is_empty() {
-        return Err(io::Error::new(io::ErrorKind::InvalidInput, "Invalid repository URL"));
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Invalid repository URL",
+        ));
     }
 
     // 2. Construct the expected path: parent_folder/repo_name
@@ -34,10 +36,7 @@ pub fn clone_and_run(repo_url: &str, folder_name: &Path) -> io::Result<()> {
         .status()?; // .status() runs the command and waits for it to finish
 
     if !clone_status.success() {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
-            "Failed to clone the repository.",
-        ));
+        return Err(io::Error::other("Failed to clone the repository."));
     }
 
     /*
