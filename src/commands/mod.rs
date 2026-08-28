@@ -1,4 +1,5 @@
 pub mod core;
+pub mod gc;
 pub mod git;
 
 use crate::SessionContext;
@@ -25,6 +26,7 @@ pub enum Commands {
         #[command(subcommand)]
         subcommand: Option<core::CoreCommands>,
     },
+    GC,
     Exit, // Exit the interactive session
 }
 
@@ -126,6 +128,9 @@ pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
         }
         Commands::Core { subcommand } => {
             core::handle_core_command(subcommand, context);
+        }
+        Commands::GC => {
+            let _ = gc::receive();
         }
         Commands::Exit => {
             println!("Goodbye!");
