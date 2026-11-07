@@ -41,6 +41,9 @@ pub fn ask_confirm(prompt: &str, default_value: bool) -> bool {
 /// Where your routing logic lives
 pub fn execute_command(cmd: Commands, context: &mut SessionContext) -> bool {
     match cmd {
+        // TODO: find a better order for commands, maybe hiding everything in subcommands is not a great idea. 
+        // TODO: write a status json file in the local config dir or so that shows the local setup status
+        // this status can be used to check wether the setup is up to date and with wich version of the cli tool it was created.
         Commands::Init => {
             println!("✨ Solo System Initialization");
 
